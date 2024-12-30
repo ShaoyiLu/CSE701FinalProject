@@ -334,3 +334,96 @@ To compile the project, you need a C++ compiler that supports C++23 (like GCC or
    Pass testOperator()
    Pass all!!!
    ```
+
+## Example
+
+Examples of how to use the `BigInt` class for various operations. Each example includes code snippets and detailed explanations.
+
+1. This example demonstrates how to use the `BigInt` class for various operations, including arithmetic, comparisons, increment, decrement, and handling large and negative numbers.
+
+    ```cpp
+    #include <iostream>
+    #include "bigint.hpp"
+
+    int main() {
+        // Constructing BigInt objects
+        BigInt a("34008559761372947564");     // Large positive number
+        BigInt b("-34683457651348856902");    // Large negative number
+        BigInt zero;                          // Zero
+
+        // Arithmetic operations
+        BigInt sum = a + b;                   // Addition
+        BigInt diff = a - b;                  // Subtraction
+        BigInt prod = a * b;                  // Multiplication
+        BigInt negA = -a;                     // Negation of a
+
+        // Comparisons
+        bool isEqual = (a == b);              // Equality check
+        bool isLess = (a < b);                // Less than comparison
+        bool isGreater = (a > b);             // Greater than comparison
+
+        // Increment and Decrement
+        BigInt c("100000");
+        ++c;                                  // Pre-increment
+        c++;                                  // Post-increment
+        --c;                                  // Pre-decrement
+        c--;                                  // Post-decrement
+
+        // Output results
+        std::cout << "a = " << a << "\n";
+        std::cout << "b = " << b << "\n";
+        std::cout << "zero = " << zero << "\n";
+        std::cout << "a + b = " << sum << "\n";
+        std::cout << "a - b = " << diff << "\n";
+        std::cout << "a * b = " << prod << "\n";
+        std::cout << "-a = " << negA << "\n";
+        std::cout << "a == b: " << (isEqual ? "true" : "false") << "\n";
+        std::cout << "a < b: " << (isLess ? "true" : "false") << "\n";
+        std::cout << "a > b: " << (isGreater ? "true" : "false") << "\n";
+        std::cout << "Value of c after increments and decrements: " << c << "\n";
+
+        return 0;
+    }
+    ```
+
+    ### Explanation
+
+    #### **1. Constructing BigInt Objects**
+    - `a` is initialized with a large positive number.
+    - `b` is initialized with a large negative number.
+    - `zero` is a value of `0`.
+
+    #### **2. Performing Arithmetic Operations**
+    - `a + b`: Adds `a` and `b`.
+    - `a - b`: Subtracts `b` from `a`.
+    - `a * b`: Multiplies `a` and `b`.
+    - `-a`: Negates `a` to produce its negative counterpart.
+
+    #### **3. Comparisons**
+    - `a == b`: Checks if `a` is equal to `b`.
+    - `a < b`: Checks if `a` is less than `b`.
+    - `a > b`: Checks if `a` is greater than `b`.
+
+    #### **4. Increment and Decrement**
+    - `++c`: Pre-increment increases `c` by `1`.
+    - `c++`: Post-increment increases `c` by `1` but returns the original value.
+    - `--c`: Pre-decrement decreases `c` by `1`.
+    - `c--`: Post-decrement decreases `c` by `1` but returns the original value.
+
+    #### **5. Output Results**
+    - Outputs all results using the overloaded `<<` operator.
+
+    ### Expected output
+    ```plaintext
+    a = 34008559761372947564
+    b = -34683457651348856902
+    zero = 0
+    a + b = -674897889975309338
+    a - b = 68692017412721804466
+    a * b = -1180047187126743607427438441565517769928
+    -a = -34008559761372947564
+    a == b: false
+    a < b: false
+    a > b: true
+    Value of c after increments and decrements: 100000
+    ```
