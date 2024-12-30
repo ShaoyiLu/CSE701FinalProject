@@ -44,6 +44,7 @@ Constructs a `BigInt` object from a string representation of an integer.
 - Verifies that all characters without the sign are digits; otherwise, also need to throws a `std::invalid_argument` exception.  
 - Extracts the numbers in reverse order and stores them in the `number` vector.  
 - Removes leading zeros using the `removeLeadingZero` method and resets the `isNegative` flag if the resulting number is zero.
+- The numbers are stored in reverse order to match the natural flow of mathematical calculations, usually from the least significant digit, to the ones digit, to the most significant digit. This design simplifies the implementation of addition, subtraction, and multiplication algorithms.
 
 **Example:**
 ```cpp
