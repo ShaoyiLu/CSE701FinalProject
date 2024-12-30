@@ -7,7 +7,7 @@
  * @brief Tests the constructors of the BigInt class.
  * 
  * This function tests various constructors of the BigInt class, including default constructor, 
- * sign integer conversion, and string conversion. It also verifies proper handling of invalid inputs.
+ * signed integer conversion, and string conversion. It also verifies proper handling of invalid inputs.
  */
 void testConstructor() {
     BigInt zero;
