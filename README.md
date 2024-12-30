@@ -247,7 +247,7 @@ This operator decrements the current BigInt by 1 and returns a reference to the 
 **Example:**
 ```cpp
 BigInt g(999998);
---g;  // a = 999997
+--g;  // g = 999997
 std::cout << g;  // Output: 999997
 ```
 
@@ -270,7 +270,18 @@ Computes the absolute sum of two `BigInt` objects.
 - Handles the case where the sizes of `a` and `b` are different by iterating to a larger size.
 - Returns a `BigInt` representing the absolute sum.  
 - If the result exceeds 9 in any position, carry is carried up to the next position. 
-- The resulting digits are stored in reverse order in that `number` vector.  
+- The resulting digits are stored in reverse order in that `number` vector. 
+
+**Algorithm:**
+1. Create a result vector `sumAbs` with no initial elements.
+2. Initialize a carry variable to `0`.
+3. Loop through the larger of the two numbers `maxLength`:
+   - If the current digit of `a` exists, add it to the sum.
+   - If the current digit of `b` exists, add it to the sum.
+   - Append `sum % 10` to the result vector.
+   - Update `carry` as `sum / 10` for the next iteration.
+4. If `carry` remains after the loop, append it to the result vector.
+5. Return the result vector.
 
 **Example**
 ```cpp
@@ -285,6 +296,16 @@ Computes the absolute difference of two `BigInt` objects.
 - If a borrow is needed, add 10 to the current number and carry the borrow to the next position.
 - Use `removeLeadingZero` to remove leading zeros from the result.
 
+**Algorithm:**
+1. Create a result vector `diffAbs` with no initial elements.
+2. Initialize a borrow variable to `0`.
+3. Loop through the digit of `a`:
+   - If the current digit of `b` exists, subtract it and `borrow` from the current digit of `a`.
+   - If the result is negative, add `10` to it and set `borrow` to `1`. Otherwise, set `borrow` to `0`.
+   - Append `diff % 10` to the result vector.
+4. Remove any leading zeros from the result vector using `removeLeadingZero()`.
+5. Return the result vector.
+
 **Example**
 ```cpp
 BigInt difference = BigInt::absoluteSubtract(BigInt(32), BigInt(45));  // difference = 13
@@ -295,6 +316,16 @@ Compares the absolute values of two `BigInt` objects.
 - First compares the sizes of the `number` vectors.
 - If the sizes are equal, iterates through the digits from the most significant bit to the least significant bit to determine the result.
 - Returns `1` if `a > b`, `-1` if `a < b`, and `0` if `a == b`.
+
+**Algorithm:**
+1. Compare the lengths of `a` and `b`:
+   - If `a` is longer, return `1`.
+   - If `b` is longer, return `-1`.
+   - Append `diff % 10` to the result vector.
+2. If the lengths are equal, compare the digits starting from the most significant digit.
+   - If `a[i] > b[i]`, return `1`.
+   - If `a[i] < b[i]`, return `-1`.
+3. If all digits are equal, return `0`.
 
 **Example**
 ```cpp
