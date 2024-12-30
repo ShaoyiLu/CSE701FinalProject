@@ -7,7 +7,7 @@ This project, written entirely in C++, is called **BigInt**. As its name suggest
 ## Private Parameters
 
 - **bool isNegative**: Indicates whether a BigInt represents a negative number. Defaults to `false`, meaning the number is positive or zero.
-- **vector<int64_t> number**: Used to store integers of arbitrary length. Each element represents a single digit in the range 0 to 9, stored in reverse order for operations to be performed in the normal way, that is, from the ones digit to the most significant digit. Using `int64_t` ensures flexibility for future expansion or operations involving larger numeric ranges.
+- **vector<int64_t> number**: Used to store integers of arbitrary length. Each element represents a single digit in the range 0 to 9, stored in reverse order for operations to be performed in the normal way, that is, from the ones digit to the most significant digit.
 
 ## Private Method
 
