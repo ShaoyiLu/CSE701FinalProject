@@ -103,6 +103,21 @@ Multiplies two `BigInt` objects and returns their product.
 - Handles carries and adjusts the sign `isNegative` based on the signs of the operands.
 - Gets a correct integer result by removing leading zeros using the `removeLeadingZero` method.
 
+**Algorithm:**
+1. Create a result vector `answer.number` with size equal to `number.size() + other.number.size()`, initialized to `0`.
+2. Set the result sign `answer.isNegative` based on the signs of the operands:
+   - If the signs are different, set `answer.isNegative = true`. Otherwise, set it to `false`.
+3. Loop through each digit of the first number `number[i]`:
+   - Initialize the carry variable to `0` and start from there.
+   - Loop through each digit of the second number `other.number[j]` or continue while `carry > 0`:
+     - Multiply the current digit of the first number `number[i]` by the current digit of the second number `other.number[j]`, or `0` if `j` exceeds `other.number.size()`.
+     - Add the product, the current carry, and the current value at position `i + j` in the result vector.
+     - Update the current position in `answer.number` with the remainder of the sum divided by 10 `current % 10`.
+     - Update `carry` with the quotient of the sum divided by 10 `current / 10`.
+4. After processing all digits of the second number, add any remaining carry to the result vector.
+5. Use `removeLeadingZero()` to remove all leading zeros from the result vector.
+6. Return the result vector wrapped in a `BigInt` object.
+
 ```cpp
 BigInt longInt(222333444111);
 BigInt shortInt(20);
