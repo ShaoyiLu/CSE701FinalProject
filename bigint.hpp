@@ -7,275 +7,422 @@
 #include <stdexcept>
 #include <algorithm>
 
-
+/**
+ * @class BigInt
+ * @brief The class for arbitrary length integer calculations.
+ *
+ * Supports basic mathematical operations, comparison operators, and some various utility functions.
+ */
 class BigInt {
 private:
-    std::vector<int> number;
+    /**
+     * @brief To store the number of digits.
+     * 
+     * Each element is a digit from 0 to 9.
+     */
+    std::vector<int64_t> number;
+
+    /**
+     * @brief Determines if a number is negative.
+     *
+     * If it is negative, then it is true. 
+     */
     bool isNegative;
 
-    void removeLeadingZero() { // remove leading zero (003 to 3)
-        while (number.size() > 1 && number.back() == 0) { // if size bigger than 1 and has leading 0
-            number.pop_back(); // remove leading 0
+    /**
+     * @brief Remove all leading zeros from the number.
+     *
+     * Ensure that the digits contained in the number remain valid.
+     */
+    void removeLeadingZero() {
+        while (number.size() > 1 && number.back() == 0) {
+            number.pop_back();
         }
         if (number.size() == 1 && number[0] == 0) {
-            isNegative = false; // 0 is always nonegative
+            isNegative = false;
         }
     }
 
 public:
-    // 1. default constructor, creating the integer 0
+    /**
+     * @brief Default constructor, initializes the number to 0.
+     */
     BigInt() : number{0}, isNegative(false) {}
 
-    // 2. constructor that takes a signed 64-bit integer, converts it to an arbitrary-precision integer
+    /**
+     * @brief A constructor that converts a signed 64-bit integer to a BigInt.
+     * 
+     * @param integer The signed 64-bit integer to be converted, equivalent to long long.
+     */
     BigInt(int64_t integer) {
-        isNegative = integer < 0; // check whether negative
-        integer = std::abs(integer); // absolute value
+        isNegative = integer < 0;
+        integer = std::abs(integer);
         do {
-            number.push_back(integer % 10); // get the rightmost digit
-            integer = integer / 10; // remove the rightmost digit
+            number.push_back(integer % 10);
+            integer = integer / 10;
         } while (integer != 0);
         if (number.empty()) {
-            number.push_back(0); // empty means 0
+            number.push_back(0);
         }
     }
 
-    // 3. constructor that takes a string of digits, converts it to an arbitrary-precision integer
+    /**
+     * @brief The constructor that converts a number in string form to a BigInt.
+     * 
+     * @param str The integer in string form.
+     * @throws std::invalid_argument if the string is invalid.
+     */
     BigInt(const std::string& str) {
         if (str.empty()) {
-            throw std::invalid_argument("It is empty!!!"); // empty means wrong
+            throw std::invalid_argument("It is empty");
         }
-        isNegative = (str[0] == '-'); // check whether negative
-        for (int i = str.size() - 1; i >= (isNegative ? 1 : 0); --i) { // if negative, skip "-"
-            if (!isdigit(str[i])) {
-                throw std::invalid_argument("Invalid number!!!"); // invalid number also means wrong
+        
+        isNegative = (str[0] == '-');
+        size_t first = isNegative ? 1 : 0;
+
+        if (str.size() == first) {
+            throw std::invalid_argument("Only the symbol of negative '-'");
+        }
+
+        for (size_t i = str.size(); i > first; --i) {
+            char c = str[i - 1];
+            if (!std::isdigit(c)) {
+                throw std::invalid_argument("String with other symbol");
             }
-            number.push_back(str[i] - '0'); // change string to int
+            number.push_back(c - '0');
         }
         removeLeadingZero();
+
+        if (number.empty()) {
+            isNegative = false;
+        }
     }
 
-    // Addition (+)
+    /**
+     * @brief Adds two BigInts numbers.
+     * 
+     * @param other The other BigInt to be added to the first BigInt.
+     * @return The sum of the two BigInts.
+     */
     BigInt operator+(const BigInt& other) const {
-        if (isNegative == other.isNegative) { // if all negative, add it directly
+        if (isNegative == other.isNegative) {
             BigInt sum = absoluteAdd(*this, other);
             sum.isNegative = isNegative;
             return sum;
         }
-        if (absoluteComparsion(*this, other) >= 0) { // if one is negative and one is not, subtract
-            BigInt diffrence = absoluteSubtract(*this, other);
-            diffrence.isNegative = isNegative;
-            return diffrence;
+        if (absoluteComparison(*this, other) >= 0) {
+            BigInt difference = absoluteSubtract(*this, other);
+            difference.isNegative = isNegative;
+            return difference;
         }
-        BigInt diff = absoluteSubtract(other, *this); // if other one bigger than first, subtract
+        BigInt diff = absoluteSubtract(other, *this);
         diff.isNegative = other.isNegative;
         return diff;
     }
 
-    // Addition (+=)
+    /**
+     * @brief Adds another BigInt with this BigInt.
+     * 
+     * @param other Another BigInt to add tis BigInt.
+     * @return A reference to this BigInt.
+     */
     BigInt& operator+=(const BigInt& other) {
         *this = *this + other;
         return *this;
     }
 
-    // Subtraction (-)
+    /**
+     * @brief Subtracts another BigInt from this BigInt.
+     * 
+     * @param other The other BigInt to be subtracted.
+     * @return The answer of the subtraction.
+     */
     BigInt operator-(const BigInt& other) const {
-        //*this = *this + (-other);
         return *this + (-other);
     }
 
-    // Subtraction (-=)
+    /**
+     * @brief Subtracts another BigInt from this BigInt.
+     * 
+     * @param other The other BigInt to subtract from this BigInt.
+     * @return A reference to this BigInt.
+     */
     BigInt& operator-=(const BigInt& other) {
         *this = *this - other; 
         return *this; 
     }
 
-    // Multiplication (*)
+    /**
+     * @brief Multiplies this BigInt by another BigInt.
+     * 
+     * @param other The other BigInt to multiply first BigInt by.
+     * @return The product of these two BigInts.
+     */
     BigInt operator*(const BigInt& other) const {
         BigInt answer;
-        answer.number.resize(number.size() + other.number.size(), 0); // storage space
-        answer.isNegative = (isNegative != other.isNegative); // if not equal, result is positive
+        answer.number.resize(number.size() + other.number.size(), 0);
+        answer.isNegative = (isNegative != other.isNegative);
 
         for (size_t i = 0; i < number.size(); ++i) {
-            int carry = 0;
+            int64_t carry = 0;
             for (size_t j = 0; j < other.number.size() || carry; ++j) {
-                long long multiplicand = (long long)number[i]; // multiplicand
-                long long multiplier; // multiplier
+                int64_t multiplicand = (int64_t)number[i];
+                int64_t multiplier;
                 if (j < other.number.size()) {
                     multiplier = other.number[j];
                 } else {
-                    multiplier = 0; // if tranversal all number, just add carry at end (so it is 0)
+                    multiplier = 0;
                 }
-                long long product = multiplicand * multiplier; 
-                long long current = answer.number[i + j] + product + carry; // add each time result and carry
-                answer.number[i + j] = current % 10; // store the rightmost digit on [i, j]
-                carry = current / 10; // next carry
+                int64_t product = multiplicand * multiplier; 
+                int64_t current = answer.number[i + j] + product + carry;
+                answer.number[i + j] = current % 10;
+                carry = current / (int64_t)10;
             }
         }
         answer.removeLeadingZero();
         return answer;
     }
 
-    // Multiplication (*=)
+    /**
+     * @brief Multiplies this BigInt by another BigInt.
+     * 
+     * @param other The other BigInt to multiply this BigInt by.
+     * @return A reference to this BigInt.
+     */
     BigInt& operator*=(const BigInt& other) {
         *this = *this * other;
         return *this;
     }
 
-    // Negation (unary -)
-    BigInt operator-() const { // no parameter
+    /**
+     * @brief Negates this BigInt.
+     * 
+     * @return The negated BigInt.
+     */
+    BigInt operator-() const {
         BigInt answer = *this;
         if (number[0] == 0 && number.size() == 1) {
-            answer.isNegative = false; // 0 is not negative
+            answer.isNegative = false;
         } else {
-            answer.isNegative = !isNegative; // change + to -, or - to +
+            answer.isNegative = !isNegative;
         }
         return answer;
     }
 
-    // Comparison (==)
+    /**
+     * @brief Compares this BigInt to another BigInt to determine equality.
+     * 
+     * @param other The other BigInt to compare.
+     * @return Returns true if the two BigInt are equal, false otherwise.
+     */
     bool operator==(const BigInt& other) const {
         bool sameSign = (isNegative == other.isNegative);
         bool sameNumber = (number == other.number);
-        return sameNumber && sameSign; // if sign and number all same, then they are equal
+        return sameNumber && sameSign;
     }
 
-    // Comparison (!=)
+    /**
+     * @brief Compares this BigInt to another BigInt to determine if they are unequal.
+     * 
+     * @param other The other BigInt to compare.
+     * @return Returns true if the two BigInt are unequal, false otherwise.
+     */
     bool operator!=(const BigInt& other) const {
         bool sameSign = (isNegative == other.isNegative);
         bool sameNumber = (number == other.number);
-        return !(sameNumber && sameSign); // if one of sign and number not same, then not equal
+        return !(sameNumber && sameSign);
     }
 
 
-    // Comparison (<)
+    /**
+     * @brief Checks if this BigInt is less than another BigInt.
+     * 
+     * @param other The other BigInt to compare.
+     * @return Returns true if this BigInt is less than another BigInt, false otherwise.
+     */
     bool operator<(const BigInt& other) const {
-        if (isNegative != other.isNegative) { //if one is - and other is +, return negative one
+        if (isNegative != other.isNegative) {
             return isNegative;
         }
-        if (isNegative) { // if all negative and one absolute value is large, return this one
-            return absoluteComparsion(*this, other) > 0;
+        if (isNegative) {
+            return absoluteComparison(*this, other) > 0;
         }
-        return absoluteComparsion(*this, other) < 0; // if all positive, return smaller one
+        return absoluteComparison(*this, other) < 0;
     }
 
-    // Comparison (>)
+    /**
+     * @brief Checks if this BigInt is greater than another BigInt.
+     * 
+     * @param other The other BigInt to compare.
+     * @return Returns true if this BigInt is greater than the other BigInt, false otherwise.
+     */
     bool operator>(const BigInt& other) const {
-        return other < *this; // just use <
+        return other < *this;
     }
 
-    // Comparison (<=)
+    /**
+     * @brief Checks if this BigInt is less than or equal to another BigInt.
+     * 
+     * @param other The other BigInt to compare.
+     * @return Return true if this BigInt is less than or equal to the other BigInt, false otherwise.
+     */
     bool operator<=(const BigInt& other) const {
-        return !(other < *this); // not > means <=
+        return !(other < *this);
     }
 
-    // Comparison (>=)
+    /**
+     * @brief Checks if this BigInt is greater than or equal to another BigInt.
+     * 
+     * @param other The other BigInt to compare.
+     * @return Return true if this BigInt is greater than or equal to the other BigInt, false otherwise.
+     */
     bool operator>=(const BigInt& other) const {
-        return !(*this < other); // not < means >=
+        return !(*this < other);
     }
 
-    // Insertion (<<)
+    /**
+     * @brief Outputs the BigInt to an output stream.
+     * 
+     * @param output The output stream.
+     * @param integer The BigInt to be output.
+     * @return A reference to the output stream.
+     */
     friend std::ostream &operator<<(std::ostream& output, const BigInt& integer) {
-        if (integer.isNegative) { // if it is negative, output -
+        if (integer.isNegative) {
             output << '-';
         }
-        for (int i = integer.number.size() - 1; i >= 0; --i) {
-            output << integer.number[i]; // then output number from left to right
+        for (auto i = integer.number.size() - 1; i != 0; --i) {
+            output << integer.number[i];
         }
         return output;
     }
 
-    // Increment (++ pre-increment)
+    /**
+     * @brief Pre-increments this BigInt.
+     * 
+     * @return A reference to this BigInt.
+     */
     BigInt& operator++() {
-        *this = *this + 1; // just add one
+        *this = *this + 1;
         return *this;
     }
 
-    // Increment (++ post-increment)
+    /**
+     * @brief Post-increments this BigInt.
+     * 
+     * @return The BigInt before the increment.
+     */
     BigInt operator++(int) {
         BigInt temp = *this;
-        // (*this)++; // recursion
-        ++(*this); // let number add 1 but return initial value
+        ++(*this);
         return temp;
     }
 
-    // Decrement (-- pre-decrement)
+    /**
+     * @brief Pre-decrements this BigInt.
+     * 
+     * @return A reference to this BigInt.
+     */
     BigInt& operator--() {
         *this = *this - 1;
         return *this;
     }
 
-    // Decrement (-- post-decrement)
+    /**
+     * @brief Post-decrements this BigInt.
+     * 
+     * @return The BigInt before the decrement.
+     */
     BigInt operator--(int) {
         BigInt temp = *this;
-        --(*this); // let number minus 1 but return initial value
-        return temp; // -- almost same as ++
+        --(*this);
+        return temp;
     }
 
 
 private:
-    // absolute value of the sum of two int
+
+    /**
+     * @brief Computes the absolute sum of two BigInts.
+     * 
+     * @param a The first BigInt.
+     * @param b The second BigInt.
+     * @return The absolute sum of these two BigInts.
+     */
     static BigInt absoluteAdd(const BigInt& a, const BigInt& b) {
         BigInt sumAbs;
         sumAbs.number.clear();
-        int carry = 0;
-        size_t maxLength = std::max(a.number.size(), b.number.size()); // find longer one and choose it's size
+        int64_t carry = 0;
+        size_t maxLength = std::max(a.number.size(), b.number.size());
         for (size_t i = 0; i < maxLength || carry; ++i) {
-            int sum = carry; // add carry to sum each time
+            int64_t sum = carry;
             if (i < a.number.size()) {
-                sum += a.number[i]; // add number a[i] to sum
+                sum += a.number[i];
             }
             if (i < b.number.size()) { 
-                sum += b.number[i]; // add number b[i] to sum
+                sum += b.number[i];
             }
-            sumAbs.number.push_back(sum % 10); //  then add sum to absolute value sum
+            sumAbs.number.push_back(sum % 10);
             carry = sum / 10;
         }
         return sumAbs;
     }
 
-    // absolute value of the diffrence of two int
+    /**
+     * @brief Computes the absolute difference of two BigInts.
+     * 
+     * @param a The first BigInt.
+     * @param b The second BigInt.
+     * @return The absolute difference of these two BigInts.
+     */
     static BigInt absoluteSubtract(const BigInt& a, const BigInt& b) {
         BigInt diffAbs;
         diffAbs.number.clear();
-        int borrow = 0;
+        int64_t borrow = 0;
         for (size_t i = 0; i < a.number.size(); ++i) {
-            int newb = 0;
+            int64_t temp = 0;
             if (i < b.number.size()) {
-                newb = b.number[i]; // replace b to new one
+                temp = b.number[i];
             }
-            int diff = a.number[i] - newb - borrow; // a - b - borrow = diffrence
+            int64_t diff = a.number[i] - temp - borrow;
             if (diff < 0) {
-                diff += 10; // it should not be negative
-                borrow = 1; // The higher digit needs to minus 1
+                diff += 10;
+                borrow = 1;
             } else {
                 borrow = 0;
             }
-            diffAbs.number.push_back(diff); // add diffrence to absolute diffrence
+            diffAbs.number.push_back(diff);
         }
         diffAbs.removeLeadingZero();
         return diffAbs;
     }
 
-    // comparison of absolute values of two numbers
-    static int absoluteComparsion(const BigInt& a, const BigInt& b) {
+    /**
+     * @brief Compares the absolute values of two BigInts.
+     * 
+     * @param a The first BigInt.
+     * @param b The second BigInt.
+     * @return Return 1 if a > b, return -1 if a < b, and return 0 if a == b.
+     */
+    static int64_t absoluteComparison(const BigInt& a, const BigInt& b) {
         if (a.number.size() != b.number.size()) {
-            if (a.number.size() > b.number.size()) { // compare length of number
-                return 1; // if a > b
+            if (a.number.size() > b.number.size()) {
+                return 1;
             } else {
-                return -1; // if b >a
+                return -1;
             }
         }
-        // if two number size are equal
-        for (int i = a.number.size() - 1; i >= 0; --i) { // from higher digit to compare
+
+        for (auto i = a.number.size() - 1; i != 0; --i) {
             if (a.number[i] != b.number[i]) {
                 if (a.number[i] > b.number[i]) {
-                    return 1; // if a > b
+                    return 1;
                 } else {
-                    return -1; // if a < b
+                    return -1;
                 }
             }
         }
-        return 0; // when a == b
+        return 0;
     }
 };
 
