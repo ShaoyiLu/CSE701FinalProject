@@ -331,7 +331,7 @@ To compile the project, you need a C++ compiler that supports C++23 (like GCC or
 1. Open a terminal and navigate to the directory containing the project files:
 
    ```bash
-   cd /path/to/your/project
+   cd /path/to/project
    ```
 2. Compile the `test.cpp` file with the following command
 
