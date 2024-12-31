@@ -291,8 +291,8 @@ public:
         if (integer.isNegative) {
             output << '-';
         }
-        for (auto i = integer.number.size() - 1; i != 0; --i) {
-            output << integer.number[i];
+        for (int64_t i = static_cast<int64_t>(integer.number.size()) - 1; i >= 0; --i) {
+            output << integer.number[static_cast<std::size_t>(i)];
         }
         return output;
     }
@@ -413,9 +413,9 @@ private:
             }
         }
 
-        for (auto i = a.number.size() - 1; i != 0; --i) {
-            if (a.number[i] != b.number[i]) {
-                if (a.number[i] > b.number[i]) {
+        for (int64_t i = static_cast<int64_t>(a.number.size()) - 1; i >= 0; --i) {
+            if (a.number[static_cast<size_t>(i)] != b.number[static_cast<size_t>(i)]) {
+                if (a.number[static_cast<size_t>(i)] > b.number[static_cast<size_t>(i)]) {
                     return 1;
                 } else {
                     return -1;
