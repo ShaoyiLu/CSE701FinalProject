@@ -4,6 +4,25 @@
 
 This project, written entirely in C++, is called **BigInt**. As its name suggests, it can perform basic calculations on very long positive and negative integers, including following operators: `+`, `+=`, `-`, `-=`, `*`, `*=`, unary `-`, `==`, `!=`, `<`, `>`, `<=`, `>=`, `<<`, pre-increment `++`, post-increment `++`, pre-increment `--`, and post-increment `--`.
 
+## Working principle
+
+The `BigInt` class is designed to handle integers of arbitrary length using efficient algorithms and data structures. Here are the key design decisions and their rationale:
+
+1. **Data storage**:
+- Numbers are stored as `std::vector<int64_t>`, with each element representing a decimal digit.
+- Numbers are stored in reverse order to simplify operations, as they start with the least significant digit, the ones digit.
+
+2. **Sign handling**:
+- A Boolean flag `isNegative` is used to indicate the sign of a number.
+- This separates the sign from the number storage, simplifying arithmetic and comparison logic.
+
+3. **Core algorithm**:
+- **Addition/subtraction**: Bit-by-bit processing with carry or borrow propagation.
+- **Multiplication**: Bit-by-bit products are computed using nested loops and placed correctly in the result vector.
+
+4. **Error handling**:
+- Invalid inputs, such as non-numeric strings, are detected and handled by throwing an exception `std::invalid_argument`.
+
 ## Private Parameters
 
 - **bool isNegative**: Indicates whether a BigInt represents a negative number. Defaults to `false`, meaning the number is positive or zero.
