@@ -1,3 +1,4 @@
+#include <sstream>
 #include <iostream>
 #include <cassert>
 
@@ -106,6 +107,57 @@ void testOperator() {
 }
 
 /**
+ * @brief Tests the less-than operator of the BigInt class.
+ *
+ * This function verifies that the BigInt class correctly compares two
+ * instances using the < operator.
+ */
+void testLessThanOperator() {
+    BigInt large1("29348572947832947983214789345657892384923978472394832");
+    BigInt large2("29348572947832947983214789345657892384923978472394833");
+    assert(large1 < large2);
+    assert(!(large2 < large1));
+
+    BigInt largeNegative1("-29348572947832947983214789345657892384923978472394832");
+    BigInt largeNegative2("-29348572947832947983214789345657892384923978472394833");
+    assert(largeNegative2 < largeNegative1);
+    assert(!(largeNegative1 < largeNegative2));
+
+}
+
+/**
+ * @brief Tests the output operator of the BigInt class.
+ *
+ * This function verifies that the BigInt class correctly outputs
+ * its string representation using the << operator. 
+ */
+void testOutputOperator() {
+    BigInt positiveNUmber("876534312345678987656434325566");
+    BigInt negativeNumber("-435678932123456789098666436772");
+    BigInt zero("-0");
+    
+    std::ostringstream oss;
+
+    oss << positiveNUmber;
+    assert(oss.str() == "876534312345678987656434325566");
+    oss.str("");
+    oss.clear();
+
+    oss << negativeNumber;
+    assert(oss.str() == "-435678932123456789098666436772");
+    oss.str("");
+    oss.clear();
+
+    oss << zero;
+    assert(oss.str() == "0");
+    oss.str("");
+    oss.clear();
+
+    std::cout << "Pass testOutputOperator()\n";
+}
+
+
+/**
  * @brief The main function for testing the BigInt class.
  * 
  * Runs the constructor tests and operator tests for the BigInt class.
@@ -119,6 +171,12 @@ int main() {
     
     testOperator();
     std::cout << "Pass testOperator()\n";
+
+    testOutputOperator();
+    std::cout << "Pass testOutputOperator()\n";
+
+    testLessThanOperator();
+    std::cout << "Pass testLessThanOperator()\n";
     
     std::cout << "Pass all!!!\n";
     return 0;
